@@ -6,34 +6,31 @@ using EvtSystem;
 
 public class HoverTipManager : MonoBehaviour
 {
-    private static HoverTipManager _instance = null;
-
     public TextMeshProUGUI tipText;
     public RectTransform tipWindow;
 
-    // Constructor
-    private HoverTipManager()
-    {
-        EvtSystem.EventDispatcher.AddListener<InteractTip>(TipTrigger);
-    }
-
-    // Only set getter to make this variable read-only
-    public static HoverTipManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                // FIXME: find code that did this, but for prefabs (ie. AudioManager)
-                _instance = new HoverTipManager();
-            }
-
-            return _instance;
-        }
-    }
+    // Create static instance for singleton
+    public static HoverTipManager Instance = null;
 
     // Tracking Interactables in game
     private List<HoverTip> _hoverTips = new List<HoverTip>();
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
+
+        EvtSystem.EventDispatcher.AddListener<InteractTip>(TipTrigger);
+    }
 
     public void RegisterHoverTip(HoverTip item)
     {
@@ -75,7 +72,8 @@ public class HoverTipManager : MonoBehaviour
         if (closestHoverTip != null)
         {
             Debug.Log(closestHoverTip.howToInteract);
-            //ShowTip(closestHoverTip.howToInteract, mousePosition);
+            // FIXME: testing...
+            ShowTip(closestHoverTip.howToInteract, mousePosition);
             return;
         }
 
